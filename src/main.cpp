@@ -1,5 +1,4 @@
 #include "heltec-eink-modules.h"
-#include <Adafruit_I2CDevice.h>
 #define PIN_BUSY 5
 #define PIN_CS 4
 #define PIN_DC 2
