@@ -1,18 +1,15 @@
-#include <Arduino.h>
-
-// put function declarations here:
-int myFunction(int, int);
-
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+#include "heltec-eink-modules.h"
+#include <Adafruit_I2CDevice.h>
+#define PIN_BUSY 5
+#define PIN_CS 4
+#define PIN_DC 2
+DEPG0213RWS800 display(PIN_DC, PIN_CS, PIN_BUSY); // 2.13" V2 - BWR - Red Tab
+void setup()
+{
+  DRAW(display)
+  {
+    display.fillCircle(75, 50, 50, BLACK);
+    display.fillCircle(75, 200, 50, RED);
+  }
 }
-
-void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
-}
+void loop() {}
