@@ -11,4 +11,6 @@ void setup()
     display.fillCircle(75, 200, 50, RED);
   }
 }
-void loop() {}
+void loop()
+{
+}
