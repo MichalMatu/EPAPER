@@ -47,10 +47,10 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len)
     display.drawLine(0, 70, 250, 70, BLACK);
     display.setTextSize(10);
     display.setCursor(5, 80);
-    int temp = myData.b;
+    int temp = static_cast<int>(myData.b);
+    int hum = static_cast<int>(myData.c);
     display.print(temp);
     display.setCursor(5, 160);
-    int hum = myData.c;
     display.print(hum);
   }
 }
