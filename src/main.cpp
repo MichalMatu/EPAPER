@@ -20,7 +20,7 @@ int count = 0;
 void loop()
 {
   // check if it's time to refresh the display
-  if (millis() - refreshTime >= 60000)
+  if (millis() - refreshTime >= 600)
   {
     DRAW(display)
     {
