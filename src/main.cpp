@@ -6,7 +6,7 @@
 #include "heltec-eink-modules.h"
 #define PIN_BUSY 5
 #define PIN_CS 4
-#define PIN_DC 2
+#define PIN_DC 14
 DEPG0213RWS800 display(PIN_DC, PIN_CS, PIN_BUSY); // 2.13" V2 - BWR - Red Tab
 
 // Structure example to receive data
