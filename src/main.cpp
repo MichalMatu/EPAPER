@@ -35,8 +35,23 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len)
   Serial.println(myData.c);
   DRAW(display)
   {
-    display.fillCircle(75, 50, 50, BLACK);
-    display.fillCircle(75, 200, 50, RED);
+    // set size of text to be bigger
+    display.setTextSize(2);
+    display.setCursor(10, 10);
+    display.print("T1:");
+    display.print(myData.b);
+    display.setCursor(10, 40);
+    display.print("H1:");
+    display.print(myData.c);
+    display.setCursor(10, 50);
+    display.drawLine(0, 70, 250, 70, BLACK);
+    display.setTextSize(10);
+    display.setCursor(5, 80);
+    int temp = myData.b;
+    display.print(temp);
+    display.setCursor(5, 160);
+    int hum = myData.c;
+    display.print(hum);
   }
 }
 
