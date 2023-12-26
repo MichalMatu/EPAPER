@@ -38,7 +38,6 @@ void sendDataToRelay()
 
   // Send data to the receiver
   esp_now_send(receiverMACAddress, (uint8_t *)&myDataSend, sizeof(myDataSend));
-  Serial.print("send data"); // for debug
 }
 
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len)
