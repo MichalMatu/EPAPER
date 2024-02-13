@@ -9,9 +9,16 @@
 #define PIN_DC 14
 DEPG0213RWS800 display(PIN_DC, PIN_CS, PIN_BUSY); // 2.13" V2 - BWR - Red Tab
 // ****************************************************
-#include <SensirionI2CScd4x.h>
 #include <Wire.h>
+#include <SensirionI2CScd4x.h>
+
 SensirionI2CScd4x scd4x;
+
+// Read Measurement
+uint16_t co2 = 0;
+float temperature = 0.0f;
+float humidity = 0.0f;
+bool isDataReady = false;
 
 void printUint16Hex(uint16_t value)
 {
@@ -70,7 +77,47 @@ void setup()
   Serial.begin(115200);
 
   // ****************************************************
+  Wire.begin();
 
+  uint16_t error;
+  char errorMessage[256];
+
+  scd4x.begin(Wire);
+  scd4x.readMeasurement(co2, temperature, humidity);
+  // stop potentially previously started measurement
+  error = scd4x.stopPeriodicMeasurement();
+  if (error)
+  {
+    Serial.print("Error trying to execute stopPeriodicMeasurement(): ");
+    errorToString(error, errorMessage, 256);
+    Serial.println(errorMessage);
+  }
+
+  uint16_t serial0;
+  uint16_t serial1;
+  uint16_t serial2;
+  error = scd4x.getSerialNumber(serial0, serial1, serial2);
+  if (error)
+  {
+    Serial.print("Error trying to execute getSerialNumber(): ");
+    errorToString(error, errorMessage, 256);
+    Serial.println(errorMessage);
+  }
+  else
+  {
+    printSerialNumber(serial0, serial1, serial2);
+  }
+
+  // Start Measurement
+  error = scd4x.startPeriodicMeasurement();
+  if (error)
+  {
+    Serial.print("Error trying to execute startPeriodicMeasurement(): ");
+    errorToString(error, errorMessage, 256);
+    Serial.println(errorMessage);
+  }
+
+  Serial.println("Waiting for first measurement... (5 sec)");
   // ****************************************************
 
   // Set device as a Wi-Fi Station
@@ -130,20 +177,56 @@ void updateDisplay()
 }
 
 // ****************************************************
+void scd41()
+{
+  // Read Measurement
+  uint16_t error = scd4x.readMeasurement(co2, temperature, humidity);
+  if (error)
+  {
+    char errorMessage[256];
+    Serial.print("Error trying to execute readMeasurement(): ");
+    errorToString(error, errorMessage, 256);
+    Serial.println(errorMessage);
+  }
+  else
+  {
+    Serial.print("CO2 concentration: ");
+    Serial.print(co2);
+    Serial.println(" ppm");
+    Serial.print("Temperature: ");
+    Serial.print(temperature);
+    Serial.println(" degrees C");
+    Serial.print("Humidity: ");
+    Serial.print(humidity);
+    Serial.println(" %");
+  }
+}
+// ****************************************************
 // use millis to read mq7 every 5 seconds
 unsigned long previousMillis = 0;
-const long interval = 10000;
+const long interval = 30000;
 
 void loop()
 {
+
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval)
   {
     previousMillis = currentMillis;
+    scd41();
     mq7();
     Serial.print(F("MQ-7: "));
     Serial.println(MQ7sensorValue);
 
+    // serial print start and milis
+    Serial.print("Start: ");
+    Serial.println(millis());
     updateDisplay();
+    // show time taken to update display
+    Serial.print("End: ");
+    Serial.println(millis());
+    // calculate time taken to update display
+    Serial.print("Time taken: ");
+    Serial.println(millis() - previousMillis);
   }
 }
