@@ -1,13 +1,24 @@
 #include <esp_now.h>
 #include <WiFi.h>
-// include spi library
 #include <SPI.h>
+#include <Arduino.h>
 
 #include "heltec-eink-modules.h"
 #define PIN_BUSY 5
 #define PIN_CS 4
 #define PIN_DC 14
 DEPG0213RWS800 display(PIN_DC, PIN_CS, PIN_BUSY); // 2.13" V2 - BWR - Red Tab
+
+#include <SensirionI2CScd4x.h>
+#include <Wire.h>
+
+int analogMQ7 = 34;     // Analog input pin for MQ-7 sensor
+int ledPin = 2;         // Device internal LED
+int MQ7sensorValue = 0; // Value read from the sensor
+int mq2Pin = 35;
+int mq2Value = 0;
+int mq9Pin = 32;
+int mq9Value = 0;
 
 // Structure example to receive data
 // Must match the sender structure
@@ -33,26 +44,6 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len)
   Serial.println(myData.b);
   Serial.print("Float: ");
   Serial.println(myData.c);
-  DRAW(display)
-  {
-    // set size of text to be bigger
-    display.setTextSize(2);
-    display.setCursor(10, 10);
-    display.print("T1:");
-    display.print(myData.b);
-    display.setCursor(10, 40);
-    display.print("H1:");
-    display.print(myData.c);
-    display.setCursor(10, 50);
-    display.drawLine(0, 70, 250, 70, BLACK);
-    display.setTextSize(10);
-    display.setCursor(5, 80);
-    int temp = static_cast<int>(myData.b);
-    int hum = static_cast<int>(myData.c);
-    display.print(temp);
-    display.setCursor(5, 160);
-    display.print(hum);
-  }
 }
 
 void setup()
@@ -77,8 +68,57 @@ void setup()
   // Once ESPNow is successfully Init, we will register for recv CB to
   // get recv packer info
   esp_now_register_recv_cb(OnDataRecv);
+
+  Serial.println(F("MQ-7 Gas Sensor Flying-Fish started"));
+  ledcWrite(analogMQ7, 255);
+  delay(6000);
+}
+
+int mq7()
+{
+  ledcWrite(analogMQ7, 71); // 28% of 255
+  MQ7sensorValue = analogRead(analogMQ7);
+  return MQ7sensorValue;
+}
+
+// use millis to read mq7 every 5 seconds
+unsigned long previousMillis = 0;
+const long interval = 5000;
+
+void updateDisplay()
+{
+  DRAW(display)
+  {
+    // set size of text to be bigger
+    // set rotation of text to be 90 degrees
+    display.setRotation(3);
+    display.setTextSize(2);
+    display.setCursor(0, 0);
+    display.print("MQ-7:");
+    display.print(MQ7sensorValue);
+    display.drawLine(0, 20, 250, 20, BLACK);
+    display.setCursor(0, 30);
+    display.print("MQ-2:");
+    mq2Value = analogRead(mq2Pin);
+    display.print(mq2Value);
+    display.drawLine(0, 50, 250, 50, BLACK);
+    display.setCursor(0, 60);
+
+    display.print("MQ-9:");
+    mq9Value = analogRead(mq9Pin);
+    display.print(mq9Value);
+  }
 }
 
 void loop()
 {
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval)
+  {
+    previousMillis = currentMillis;
+    mq7();
+    Serial.print(F("MQ-7: "));
+    Serial.println(MQ7sensorValue);
+    updateDisplay();
+  }
 }
