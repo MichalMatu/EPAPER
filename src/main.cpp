@@ -83,7 +83,7 @@ int mq7()
 
 // use millis to read mq7 every 5 seconds
 unsigned long previousMillis = 0;
-const long interval = 5000;
+const long interval = 10000;
 
 void updateDisplay()
 {
@@ -119,6 +119,7 @@ void loop()
     mq7();
     Serial.print(F("MQ-7: "));
     Serial.println(MQ7sensorValue);
+
     updateDisplay();
   }
 }
