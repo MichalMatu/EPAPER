@@ -11,7 +11,24 @@ DEPG0213RWS800 display(PIN_DC, PIN_CS, PIN_BUSY); // 2.13" V2 - BWR - Red Tab
 // ****************************************************
 #include <SensirionI2CScd4x.h>
 #include <Wire.h>
+SensirionI2CScd4x scd4x;
 
+void printUint16Hex(uint16_t value)
+{
+  Serial.print(value < 4096 ? "0" : "");
+  Serial.print(value < 256 ? "0" : "");
+  Serial.print(value < 16 ? "0" : "");
+  Serial.print(value, HEX);
+}
+
+void printSerialNumber(uint16_t serial0, uint16_t serial1, uint16_t serial2)
+{
+  Serial.print("Serial: 0x");
+  printUint16Hex(serial0);
+  printUint16Hex(serial1);
+  printUint16Hex(serial2);
+  Serial.println();
+}
 // ****************************************************
 int analogMQ7 = 34;     // Analog input pin for MQ-7 sensor
 int ledPin = 2;         // Device internal LED
@@ -51,6 +68,10 @@ void setup()
 {
   // Initialize Serial Monitor
   Serial.begin(115200);
+
+  // ****************************************************
+
+  // ****************************************************
 
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
