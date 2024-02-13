@@ -173,7 +173,21 @@ void updateDisplay()
     display.print("MQ-9:");
     mq9Value = analogRead(mq9Pin);
     display.print(mq9Value);
-  }
+
+    // dissplay co2, temperature and humidity
+    display.drawLine(0, 80, 250, 80, BLACK);
+    display.setCursor(0, 90);
+    display.print("CO2:");
+    display.print(co2);
+    display.drawLine(0, 110, 250, 110, BLACK);
+    display.setCursor(0, 120);
+    display.print("Temp:");
+    display.print(temperature);
+    display.drawLine(0, 140, 250, 140, BLACK);
+    display.setCursor(0, 150);
+    display.print("Humidity:");
+    display.print(humidity);
+    }
 }
 
 // ****************************************************
