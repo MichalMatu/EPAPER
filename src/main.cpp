@@ -8,10 +8,11 @@
 #define PIN_CS 4
 #define PIN_DC 14
 DEPG0213RWS800 display(PIN_DC, PIN_CS, PIN_BUSY); // 2.13" V2 - BWR - Red Tab
-
+// ****************************************************
 #include <SensirionI2CScd4x.h>
 #include <Wire.h>
 
+// ****************************************************
 int analogMQ7 = 34;     // Analog input pin for MQ-7 sensor
 int ledPin = 2;         // Device internal LED
 int MQ7sensorValue = 0; // Value read from the sensor
@@ -19,7 +20,7 @@ int mq2Pin = 35;
 int mq2Value = 0;
 int mq9Pin = 32;
 int mq9Value = 0;
-
+// ****************************************************
 // Structure example to receive data
 // Must match the sender structure
 typedef struct struct_message
@@ -45,7 +46,7 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len)
   Serial.print("Float: ");
   Serial.println(myData.c);
 }
-
+// ****************************************************
 void setup()
 {
   // Initialize Serial Monitor
@@ -73,7 +74,7 @@ void setup()
   ledcWrite(analogMQ7, 255);
   delay(6000);
 }
-
+// ****************************************************
 int mq7()
 {
   ledcWrite(analogMQ7, 71); // 28% of 255
@@ -81,10 +82,7 @@ int mq7()
   return MQ7sensorValue;
 }
 
-// use millis to read mq7 every 5 seconds
-unsigned long previousMillis = 0;
-const long interval = 10000;
-
+// ****************************************************
 void updateDisplay()
 {
   DRAW(display)
@@ -109,6 +107,11 @@ void updateDisplay()
     display.print(mq9Value);
   }
 }
+
+// ****************************************************
+// use millis to read mq7 every 5 seconds
+unsigned long previousMillis = 0;
+const long interval = 10000;
 
 void loop()
 {
