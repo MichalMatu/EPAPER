@@ -228,7 +228,9 @@ void loop()
   {
     previousMillis = currentMillis;
     scd41();
+    delay(100);
     mq7();
+    delay(100);
     Serial.print(F("MQ-7: "));
     Serial.println(MQ7sensorValue);
 
