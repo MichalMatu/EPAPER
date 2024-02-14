@@ -19,6 +19,8 @@ DEPG0213RWS800 display(PIN_DC, PIN_CS, PIN_BUSY); // 2.13" V2 - BWR - Red Tab
 
 Adafruit_BME680 bme; // I2C
 // ****************************************************
+#define SGP30_ADDRESS 0x58 // Default I2C address for SGP30
+// ****************************************************
 
 SensirionI2CScd4x scd4x;
 
@@ -144,6 +146,14 @@ void setup()
   bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
   bme.setGasHeater(320, 150); // 320*C for 150 ms
 
+  // ****************************************************
+  SGP30 sgp;
+  if (!sgp.begin(Wire))
+  {
+    Serial.println("Failed to initialize SGP30");
+    while (1)
+      ;
+  }
   // ****************************************************
 
   // Set device as a Wi-Fi Station
