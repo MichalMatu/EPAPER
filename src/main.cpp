@@ -147,13 +147,13 @@ void setup()
   bme.setGasHeater(320, 150); // 320*C for 150 ms
 
   // ****************************************************
-  SGP30 sgp;
-  if (!sgp.begin(Wire))
-  {
-    Serial.println("Failed to initialize SGP30");
-    while (1)
-      ;
-  }
+  // SGP30 sgp;
+  // if (!sgp.begin(Wire))
+  // {
+  //   Serial.println("Failed to initialize SGP30");
+  //   while (1)
+  //     ;
+  // }
   // ****************************************************
 
   // Set device as a Wi-Fi Station
