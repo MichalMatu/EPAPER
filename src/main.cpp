@@ -11,6 +11,14 @@ DEPG0213RWS800 display(PIN_DC, PIN_CS, PIN_BUSY); // 2.13" V2 - BWR - Red Tab
 // ****************************************************
 #include <Wire.h>
 #include <SensirionI2CScd4x.h>
+// ****************************************************
+#include <Adafruit_Sensor.h>
+#include "Adafruit_BME680.h"
+
+#define SEALEVELPRESSURE_HPA (1013.25)
+
+Adafruit_BME680 bme; // I2C
+// ****************************************************
 
 SensirionI2CScd4x scd4x;
 
@@ -120,6 +128,24 @@ void setup()
   Serial.println("Waiting for first measurement... (5 sec)");
   // ****************************************************
 
+  Serial.println(F("BME680 async test"));
+
+  if (!bme.begin())
+  {
+    Serial.println(F("Could not find a valid BME680 sensor, check wiring!"));
+    while (1)
+      ;
+  }
+
+  // Set up oversampling and filter initialization
+  bme.setTemperatureOversampling(BME680_OS_8X);
+  bme.setHumidityOversampling(BME680_OS_2X);
+  bme.setPressureOversampling(BME680_OS_4X);
+  bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
+  bme.setGasHeater(320, 150); // 320*C for 150 ms
+
+  // ****************************************************
+
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
 
@@ -190,6 +216,35 @@ void updateDisplay()
     display.print(humidity);
 
     display.drawLine(0, 25, 250, 25, BLACK);
+
+    // display bme680 data
+    display.setCursor(0, 30);
+    display.print("T:");
+    display.print(bme.temperature);
+
+    display.setCursor(60, 30);
+    display.print("P:");
+    display.print(bme.pressure / 100.0);
+
+    display.setCursor(130, 30);
+    display.print("H:");
+    display.print(bme.humidity);
+
+    display.drawLine(0, 40, 250, 40, BLACK);
+
+    display.setCursor(0, 45);
+    display.print("G:");
+    display.print(bme.gas_resistance / 1000.0);
+
+    display.setCursor(60, 45);
+    display.print("A:");
+    display.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+
+    display.drawLine(0, 55, 250, 55, BLACK);
+
+    display.setCursor(0, 60);
+    display.print("MAC:");
+    display.print(WiFi.macAddress());
   }
 }
 // ****************************************************
@@ -229,6 +284,59 @@ void loop()
   if (currentMillis - previousMillis >= interval)
   {
     previousMillis = currentMillis;
+    // ****************************************************
+    // Tell BME680 to begin measurement.
+    unsigned long endTime = bme.beginReading();
+    if (endTime == 0)
+    {
+      Serial.println(F("Failed to begin reading :("));
+      return;
+    }
+    Serial.print(F("Reading started at "));
+    Serial.print(millis());
+    Serial.print(F(" and will finish at "));
+    Serial.println(endTime);
+
+    Serial.println(F("You can do other work during BME680 measurement."));
+    delay(50); // This represents parallel work.
+    // There's no need to delay() until millis() >= endTime: bme.endReading()
+    // takes care of that. It's okay for parallel work to take longer than
+    // BME680's measurement time.
+
+    // Obtain measurement results from BME680. Note that this operation isn't
+    // instantaneous even if milli() >= endTime due to I2C/SPI latency.
+    if (!bme.endReading())
+    {
+      Serial.println(F("Failed to complete reading :("));
+      return;
+    }
+    Serial.print(F("Reading completed at "));
+    Serial.println(millis());
+
+    Serial.print(F("Temperature = "));
+    Serial.print(bme.temperature);
+    Serial.println(F(" *C"));
+
+    Serial.print(F("Pressure = "));
+    Serial.print(bme.pressure / 100.0);
+    Serial.println(F(" hPa"));
+
+    Serial.print(F("Humidity = "));
+    Serial.print(bme.humidity);
+    Serial.println(F(" %"));
+
+    Serial.print(F("Gas = "));
+    Serial.print(bme.gas_resistance / 1000.0);
+    Serial.println(F(" KOhms"));
+
+    Serial.print(F("Approx. Altitude = "));
+    Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+    Serial.println(F(" m"));
+
+    Serial.println();
+    // delay(2000);
+    // ****************************************************
+
     scd41();
     delay(100);
     mq7();
