@@ -158,38 +158,40 @@ void updateDisplay()
     // set size of text to be bigger
     // set rotation of text to be 90 degrees
     display.setRotation(3);
-    display.setTextSize(2);
+    display.setTextSize(1);
+
+    // First Column
     display.setCursor(0, 0);
     display.print("MQ-7:");
     display.print(MQ7sensorValue);
-    display.drawLine(0, 20, 250, 20, BLACK);
-    display.setCursor(0, 30);
+
+    display.setCursor(60, 0);
     display.print("MQ-2:");
     mq2Value = analogRead(mq2Pin);
     display.print(mq2Value);
-    display.drawLine(0, 50, 250, 50, BLACK);
-    display.setCursor(0, 60);
 
+    display.setCursor(130, 0);
     display.print("MQ-9:");
     mq9Value = analogRead(mq9Pin);
     display.print(mq9Value);
 
-    // dissplay co2, temperature and humidity
-    display.drawLine(0, 80, 250, 80, BLACK);
-    display.setCursor(0, 90);
+    display.drawLine(0, 10, 250, 10, BLACK);
+
+    display.setCursor(0, 15); // Adjust X-coordinate for the second column
     display.print("CO2:");
     display.print(co2);
-    display.drawLine(0, 110, 250, 110, BLACK);
-    display.setCursor(0, 120);
-    display.print("Temp:");
-    display.print(temperature);
-    display.drawLine(0, 140, 250, 140, BLACK);
-    display.setCursor(0, 150);
-    display.print("Humidity:");
-    display.print(humidity);
-    }
-}
 
+    display.setCursor(60, 15);
+    display.print("T:");
+    display.print(temperature);
+
+    display.setCursor(130, 15);
+    display.print("H:");
+    display.print(humidity);
+
+    display.drawLine(0, 25, 250, 25, BLACK);
+  }
+}
 // ****************************************************
 void scd41()
 {
@@ -218,7 +220,7 @@ void scd41()
 // ****************************************************
 // use millis to read mq7 every 5 seconds
 unsigned long previousMillis = 0;
-const long interval = 30000;
+const long interval = 10000;
 
 void loop()
 {
